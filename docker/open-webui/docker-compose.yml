@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - ./data:/app/backend/data
+      - ./config:/app/backend/config
+    environment:
+      # OpenAI API Configuration
+      - OPENAI_API_BASE_URL=${OPENAI_API_BASE_URL:-http://host.docker.internal:8080/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-no-key-required}
+
+      # General Settings
+      - WEBUI_NAME=AI-unclove Local LLM
+      - WEBUI_URL=http://localhost:3000
+      - ENABLE_SIGNUP=${ENABLE_SIGNUP:-true}
+      - DEFAULT_MODELS=${DEFAULT_MODELS:-}
+
+      # Tools & Plugins
+      - ENABLE_COMMUNITY_SHARING=${ENABLE_COMMUNITY_SHARING:-false}
+      - ENABLE_MESSAGE_RATING=${ENABLE_MESSAGE_RATING:-true}
+
+      # Advanced Features
+      - ENABLE_OLLAMA_API=${ENABLE_OLLAMA_API:-false}
+      - ENABLE_OPENAI_API=${ENABLE_OPENAI_API:-true}
+
+      # Security
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-your-secret-key-here}
+
+    env_file:
+      - ../../configs/open-webui.env
+    networks:
+      - llm-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  llm-network:
+    driver: bridge
+    name: llm-network
+    external: true

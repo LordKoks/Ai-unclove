@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  llama-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: llama-turboquant-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../../models:/models:ro
+      - ./cache:/app/cache
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - GGML_OPENVINO_DEVICE=NPU
+    env_file:
+      - ../../configs/weak-openvino-npu.env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      -m /models/${MODEL_NAME:-model.gguf}
+      --cache-type-k turbo3
+      --cache-type-v turbo3
+      -ngl ${N_GPU_LAYERS:-99}
+      --host 0.0.0.0
+      --port 8080
+      -c ${CONTEXT_SIZE:-32768}
+      --jinja
+      --no-mmap
+      -n ${MAX_TOKENS:-2048}
+      --log-disable
+      --verbose
+    networks:
+      - llm-network
+
+networks:
+  llm-network:
+    driver: bridge
+    name: llm-network
