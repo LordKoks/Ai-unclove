@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Docker
+docker/*/cache/
+docker/*/data/
+docker/open-webui/data/
+
+# Models (large files)
+models/*.gguf
+models/*.bin
+models/*.safetensors
+models/*/
+
+# Keep instructions
+!models/README.md
+!models/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Temp files
+tmp/
+temp/
+*.tmp
+
+# Environment
+.env
+.env.local
+*.env.backup
+
+# Secrets
+*secret*
+*credential*
+*key.json
